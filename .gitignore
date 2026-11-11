@@ -1,0 +1,12 @@
+# lodestar / Claude
+.claude/
+
+# build
+obj/
+*.o
+*.d
+ircserv
+
+# fichiers fournis
+en.subject.pdf
+bircd.tar.gz

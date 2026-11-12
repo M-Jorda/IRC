@@ -75,7 +75,22 @@ void Server::disconnect(Client& c);                    // B → A : fermer la co
 ### 🤝 Q-6 — Arborescence et workflow git
 - Arborescence proposée dans [REPARTITION.md](REPARTITION.md) (`include/network`, `src/network`, `include/irc`,
   `src/irc`).
-- Une branche par moitié + merge sur `main`, ou commits directs sur `main` ?
+- **Workflow git mis en place par A (à valider ensemble, tout est réversible)** :
+  ```
+  main ◀── PR (1 validation de l'autre) ── dev ◀── PR ── network/<tâche>   (A)
+                                                ◀── PR ── irc/<tâche>       (B)
+  ```
+  - `main` : uniquement ce qui marche, ce qu'on rend. On y arrive **seulement** par une PR depuis `dev`, validée par
+    l'autre.
+  - `dev` : branche par défaut du dépôt, là où nos deux moitiés se rejoignent. On y arrive **seulement** par une PR.
+  - une branche **courte par tâche**, partie de `dev` : `network/…` pour A, `irc/…` pour B
+    (ex. `network/serveur-ecoute`, `irc/enregistrement`). Supprimée après le merge.
+  - avant d'ouvrir une PR : `git fetch` puis `git merge origin/dev` dans sa branche, `make` sans erreur.
+  - protections GitHub sur `main` et `dev` : pas de push direct, pas de `push --force`, pas de suppression
+    (s'applique aussi aux admins).
+  - Pourquoi des branches par tâche plutôt qu'une branche par personne : une branche qui vit tout le projet
+    s'éloigne de `dev` et finit en énormes conflits ; une branche courte se merge petit à petit.
+- **Question pour B** : ça te va ?
 
 ## Décisions de B qui concernent A
 
@@ -88,3 +103,4 @@ _À compléter par B._
 | 2026-11-11 | A | création du fichier ; décisions A-1 à A-4 ; questions Q-1 à Q-6 |
 | 2026-11-12 | A | Q-5 : proposition pour le Makefile |
 | 2026-11-12 | A | Q-2 : proposition `std::map<int, Client>` |
+| 2026-11-12 | A | Q-6 : workflow git `main` / `dev` / branches par tâche, mis en place |

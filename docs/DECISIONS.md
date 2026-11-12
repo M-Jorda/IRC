@@ -57,8 +57,17 @@ void Server::disconnect(Client& c);                    // B → A : fermer la co
   destruction ; à préciser).
 
 ### 🤝 Q-5 — Makefile
-- Il est commun. Qui l'écrit ? Les fichiers sont-ils listés un par un (recommandé : beaucoup de correcteurs
-  refusent les wildcards) ?
+- Il est commun : on peut le modifier tous les deux.
+- Proposition de A :
+  - A écrit la première version (son île « Socle » en a besoin pour compiler) ;
+  - fichiers listés un par un, **pas de wildcards** (beaucoup de correcteurs les refusent) ;
+  - une liste par moitié, chacun ne modifie que la sienne → jamais les mêmes lignes, donc pas de conflit git :
+    ```make
+    SRCS_NETWORK = src/network/Server.cpp src/network/Client.cpp   # A
+    SRCS_IRC     =                                                  # B
+    SRCS         = src/main.cpp $(SRCS_NETWORK) $(SRCS_IRC)
+    ```
+- **Question pour B** : ça te va ?
 
 ### 🤝 Q-6 — Arborescence et workflow git
 - Arborescence proposée dans [REPARTITION.md](REPARTITION.md) (`include/network`, `src/network`, `include/irc`,
@@ -74,3 +83,4 @@ _À compléter par B._
 | date | qui | quoi |
 |---|---|---|
 | 2026-11-11 | A | création du fichier ; décisions A-1 à A-4 ; questions Q-1 à Q-6 |
+| 2026-11-12 | A | Q-5 : proposition pour le Makefile |

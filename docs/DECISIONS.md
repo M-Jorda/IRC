@@ -40,6 +40,9 @@ Légende : ✅ décidé · ❓ à trancher · 🤝 à valider ensemble
   `Client*` ou `Client&`, ces adresses doivent rester valides** tant que le client est connecté.
 - Ce qui est exclu : `std::vector<Client>` (les objets changent d'adresse quand le vecteur grandit).
 - Options étudiées : `std::map<int, Client>` ou `std::map<int, Client*>`.
+- **Proposition de A** : `std::map<int, Client>` (clé = fd). Une fiche ne change jamais d'adresse tant que le
+  client est connecté (ajouter ou retirer un client ne déplace pas les autres) → tu peux garder des `Client*`
+  dans tes canaux. Pas de `new`/`delete` à gérer. A part sur cette base en attendant ta réponse.
 - **Question pour B** : dans `Channel`, tu comptes garder les membres comment (pointeurs, références, fd, nick) ?
 
 ### 🤝 Q-3 — Contenu de `Client.hpp`
@@ -84,3 +87,4 @@ _À compléter par B._
 |---|---|---|
 | 2026-11-11 | A | création du fichier ; décisions A-1 à A-4 ; questions Q-1 à Q-6 |
 | 2026-11-12 | A | Q-5 : proposition pour le Makefile |
+| 2026-11-12 | A | Q-2 : proposition `std::map<int, Client>` |

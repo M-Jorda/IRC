@@ -2,6 +2,7 @@
 
 Proposition de découpage du projet en deux moitiés, avec une interface simple entre elles.
 **À relire et valider ensemble avant de commencer à coder** (voir « Questions à trancher » en bas).
+Les décisions prises depuis, et ce qu'elles changent pour l'autre moitié, sont dans [DECISIONS.md](DECISIONS.md).
 
 ## Le principe
 
@@ -52,6 +53,7 @@ void Server::disconnect(Client& c);
 Tant que B n'est pas prêt, A utilise une fausse `handleLine` qui renvoie la ligne (écho). Tant que A n'est pas prêt, B peut tester ses commandes avec un faux `Client` qui affiche ce qu'on lui envoie.
 
 **Classe `Client`, partagée** : A y met le fd, l'adresse et les buffers de réception et d'envoi. B y met le nick, le user, l'état d'enregistrement et les canaux. On s'accorde sur le `.hpp` avant de coder.
+A garantit qu'un `Client` **ne change jamais d'adresse mémoire** tant qu'il est connecté, pour que les canaux de B puissent garder des `Client*` (conteneur à choisir, voir Q-2 de [DECISIONS.md](DECISIONS.md)).
 
 ## Arborescence
 
@@ -67,7 +69,7 @@ src/
   irc/          # B
 obj/            # généré par le Makefile, ignoré par git
 tests/          # scripts de test
-docs/           # ce fichier
+docs/           # REPARTITION.md (qui fait quoi), DECISIONS.md (décisions A ↔ B)
 ```
 
 Une classe = un `.hpp` + un `.cpp` du même nom. Chacun reste dans ses dossiers.
@@ -80,6 +82,8 @@ Une classe = un `.hpp` + un `.cpp` du même nom. Chacun reste dans ses dossiers.
 - **Soutenance** : chacun doit pouvoir expliquer **tout** le projet, on se présente nos moitiés une fois finies.
 
 ## Questions à trancher
+
+Elles sont suivies, avec leur état, dans [DECISIONS.md](DECISIONS.md).
 
 1. **Client de référence** : c'est lui qui sera utilisé en soutenance, et le serveur doit s'y connecter sans aucune erreur. Proposition : **irssi** (en terminal, très utilisé pour ft_irc, affiche les messages bruts). Alternatives : WeeChat, HexChat. Ton avis ?
 2. **Le découpage A / B** te convient-il ?

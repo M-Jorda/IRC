@@ -24,6 +24,11 @@ Légende : ✅ décidé · ❓ à trancher · 🤝 à valider ensemble
 - **Ce que ça change pour B** : l'adresse du client est fournie **sous forme de texte** (`std::string`) dans
   `Client`, par ex. `127.0.0.1` ou `::1`. B n'a jamais à manipuler de `sockaddr`. C'est cette chaîne qui sert de
   `host` dans le préfixe `nick!user@host`.
+- Format garanti par A (B n'a rien à convertir) :
+  - un client IPv4 arrive « déguisé » en IPv6 (`::ffff:127.0.0.1`) sur le socket double pile → A le rend en
+    IPv4 simple : `127.0.0.1` ;
+  - une adresse qui commencerait par `:` (`::1`) casserait une réponse IRC où le host est un paramètre du milieu
+    (ex. `WHO`) → A ajoute un `0` devant : `0::1` (même adresse). Le host ne commence donc jamais par `:`.
 
 ### ✅ A-4 — Écoute sur toutes les interfaces
 - Un correcteur peut se connecter depuis une autre machine.
@@ -49,13 +54,27 @@ Légende : ✅ décidé · ❓ à trancher · 🤝 à valider ensemble
 - A y met : fd, adresse (texte), buffers de réception et d'envoi.
 - B y met : nick, user, realname, état d'enregistrement, canaux…
 - À écrire ensemble avant de coder, car c'est un contrat : le changer ensuite casse le code de l'autre.
+- Deux règles imposées par le registre `std::map<int, Client>` (Q-2) :
+  - `Client` doit être **copiable sans danger** (forme canonique) : `map::insert` range une copie, l'original
+    temporaire est détruit. Donc pas de pointeur « possédé » (alloué avec `new`) dans les champs de `Client`.
+  - Le destructeur de `Client` **ne ferme pas le fd** : sinon la destruction de la copie temporaire couperait la
+    vraie connexion. C'est `Server` (A) qui ferme le fd quand le client part.
 
 ### 🤝 Q-4 — Interface A ↔ B
 ```cpp
-void handleLine(Client& c, const std::string& line);   // A → B : une ligne complète, sans "\r\n"
+void handleLine(Server& s, Client& c, const std::string& line);   // A → B : une ligne complète, sans "\r\n"
 void Client::queue(const std::string& msg);            // B → A : msg déjà terminé par "\r\n"
 void Server::disconnect(Client& c);                    // B → A : fermer la connexion
 ```
+- **Proposition de A (2026-11-16)** : `handleLine` reçoit aussi le `Server`, sinon B n'a accès ni au mot de passe
+  (`PASS`), ni à `disconnect` (`QUIT`, mauvais mot de passe), ni aux autres clients (`PRIVMSG bob`, `KICK`…).
+  `Server` expose à B seulement :
+  ```cpp
+  const std::string&     getPassword() const;
+  void                   disconnect(Client& c);
+  std::map<int, Client>& getClients();          // clé = fd ; B y cherche un client par nick
+  ```
+  Si tu préfères une classe à toi (ex. `CommandHandler`) qui garde un `Server&`, c'est compatible : dis-le.
 - **Attention pour B** : après `disconnect(c)`, ne plus utiliser `c` (A décidera du moment exact de la
   destruction ; à préciser).
 
@@ -90,6 +109,9 @@ void Server::disconnect(Client& c);                    // B → A : fermer la co
     (s'applique aussi aux admins).
   - Pourquoi des branches par tâche plutôt qu'une branche par personne : une branche qui vit tout le projet
     s'éloigne de `dev` et finit en énormes conflits ; une branche courte se merge petit à petit.
+  - **Règle pour le code partagé** : une PR qui crée ou modifie ce qui nous lie (`Client.hpp`, registre des
+    clients, interface Q-4) n'est fusionnée dans `dev` qu'après **ton approbation**, même si GitHub ne l'exige pas
+    sur `dev`. La PR sert de lieu d'accord : tu y vois le vrai code. (Valable dans les deux sens.)
 - **Question pour B** : ça te va ?
 
 ## Décisions de B qui concernent A
@@ -104,3 +126,4 @@ _À compléter par B._
 | 2026-11-12 | A | Q-5 : proposition pour le Makefile |
 | 2026-11-12 | A | Q-2 : proposition `std::map<int, Client>` |
 | 2026-11-12 | A | Q-6 : workflow git `main` / `dev` / branches par tâche, mis en place |
+| 2026-11-16 | A | A-3 : format garanti de l'adresse ; Q-3 : `Client` copiable, destructeur sans `close` ; Q-4 : `handleLine` reçoit le `Server` ; Q-6 : PR du code partagé approuvée par l'autre |

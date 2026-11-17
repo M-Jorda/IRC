@@ -4,7 +4,7 @@ CXX			= c++
 CXXFLAGS	= -Wall -Wextra -Werror -std=c++98
 CPPFLAGS	= -Iinclude -MMD -MP
 
-SRCS_NETWORK	=
+SRCS_NETWORK	= src/network/Server.cpp
 
 SRCS_IRC		=
 

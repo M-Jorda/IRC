@@ -1,7 +1,10 @@
 #include <cctype>
+#include <exception>
 #include <iostream>
 #include <sstream>
 #include <string>
+
+#include "network/Server.hpp"
 
 // Port strict : uniquement des chiffres (ni espace, ni signe), 5 au plus, puis 1–65535.
 // Le texte est vérifié AVANT la conversion : avec 5 chiffres au plus, aucun débordement possible.
@@ -55,6 +58,17 @@ int main(int argc, char** argv)
 	{
 		std::cerr << "Error: invalid password: must not be empty or contain spaces or control characters"
 				  << std::endl;
+		return 1;
+	}
+
+	// Seul point de capture des erreurs fatales de Server (D8).
+	try
+	{
+		Server	server(port, password);
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "Error: " << e.what() << std::endl;
 		return 1;
 	}
 

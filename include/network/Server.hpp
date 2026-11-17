@@ -3,8 +3,9 @@
 
 #include <string>
 
-// L'hôtel : garde le port et le mot de passe ; ouvrira la porte (île 2) et fera tourner poll (île 3).
-// Possède les fd et les fermera lui-même : il ne doit donc jamais être copié.
+// Le serveur : garde le port et le mot de passe, ouvre le socket d'écoute (start)
+// et fait tourner la boucle poll (run). Possède tous les fd et les ferme lui-même :
+// il ne doit donc jamais être copié.
 class Server
 {
 public:
